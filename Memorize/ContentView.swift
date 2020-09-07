@@ -8,11 +8,18 @@
 
 import SwiftUI
 
+// Responsible for the view of the entire set of cards
 struct ContentView: View {
+    var viewModel: EmojiMemoryGame
+    
+    // Reqired by the `View` protocol
     var body: some View {
         HStack {
-            ForEach(0..<4) { index in
-                CardView(isFaceUp: false)
+            // ForEach works here because `MemoryGame.Card` implements the `Identifiable` protocol
+            ForEach(viewModel.cards) { card in
+                CardView(card: card).onTapGesture {
+                    self.viewModel.choose(card: card)
+                }
             }
         }
             .padding()
@@ -21,15 +28,17 @@ struct ContentView: View {
     }
 }
 
+// Responsible for the view of a _single_ card
 struct CardView: View {
-    var isFaceUp: Bool
+    var card: MemoryGame<String>.Card
 
+    // Reqired by the `View` protocol
     var body: some View {
         ZStack {
-            if isFaceUp {
+            if card.isFaceUp {
                 RoundedRectangle(cornerRadius: 10.0).fill(Color.white)
                 RoundedRectangle(cornerRadius: 10.0).stroke()
-            Text("👻")
+                Text(card.content)
             } else {
                 RoundedRectangle(cornerRadius: 10.0).fill(Color.orange)
             }
@@ -37,8 +46,9 @@ struct CardView: View {
     }
 }
 
+// This struct is specifically for the fancy SwiftUI preview in XCode >=11.4
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        ContentView(viewModel: EmojiMemoryGame())
     }
 }
